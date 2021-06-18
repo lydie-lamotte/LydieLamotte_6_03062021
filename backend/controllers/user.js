@@ -1,17 +1,10 @@
 const bcrypt = require('bcrypt'); //import outil de cryptage
 const jwt = require('jsonwebtoken'); //import outil de chiffrage
 const User = require('../models/user'); //import schema user
-const password = require ('../models/password_validator'); //import schema MdP
-const email = require ('email-validator'); // importe module email-validator
-const MaskData = require('../node_modules/maskdata'); //importe module masquage
+const password = require('../models/password_validator'); //import schema MdP
+const email = require('email-validator'); // importe module email-validator
+const cryptoJs = require('crypto-js'); // importe l'outil de cryptage
 
-// Methode de masquage
-const emailMask2Options = {
-    maskWith: "*", 
-    unmaskedStartCharactersBeforeAt: 0,
-    unmaskedEndCharactersAfterAt: 0,
-    maskAtTheRate: false
-}
 
 
 // Inscription
@@ -26,11 +19,13 @@ exports.signup = (req, res, next) => {
     if (!isEmailValid) {
         res.status(400).json({ error : "email non valide" });
     }
+    //crypte l'email avec l'algorithme HmacSHA512
+    const emailCrypto = cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`).toString();
     // crypte le mot de passe
     bcrypt.hash(req.body.password, 10) //création d'un MdP crypté salé 10 fois
         .then(hash => {
             const user = new User({ // Créé l'email et le Mdp crypté
-                email: MaskData.maskEmail2(req.body.email, emailMask2Options),
+                email: cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`),
                 password: hash
             });
             user.save() // Enregistre dans la base de données 
@@ -41,7 +36,8 @@ exports.signup = (req, res, next) => {
 };
 // Connexion
 exports.login = (req, res, next) => {
-    User.findOne({ email: MaskData.maskEmail2(req.body.email, emailMask2Options) }) // récupère l'email créé
+    const emailCrypto = cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`).toString();
+    User.findOne({email: cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`)}) // récupère l'email créé
         .then(user => {
         if (!user) {  
             return res.status(401).json({ error: 'Utilisateur non trouvé !' });
