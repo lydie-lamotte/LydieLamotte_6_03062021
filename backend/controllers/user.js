@@ -25,7 +25,7 @@ exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10) //création d'un MdP crypté salé 10 fois
         .then(hash => {
             const user = new User({ // Créé l'email et le Mdp crypté
-                email: cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`),
+                email: emailCrypto,
                 password: hash
             });
             user.save() // Enregistre dans la base de données 
@@ -37,7 +37,7 @@ exports.signup = (req, res, next) => {
 // Connexion
 exports.login = (req, res, next) => {
     const emailCrypto = cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`).toString();
-    User.findOne({email: cryptoJs.HmacSHA512(req.body.email, `${process.env.CRYPTO_EMAIL_KEY}`)}) // récupère l'email créé
+    User.findOne({email: emailCrypto}) // récupère l'email créé
         .then(user => {
         if (!user) {  
             return res.status(401).json({ error: 'Utilisateur non trouvé !' });
