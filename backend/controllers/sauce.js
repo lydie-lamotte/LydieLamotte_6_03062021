@@ -63,10 +63,10 @@ exports.likeSauce = (req,res,next) => {
     Sauce.findOne({ _id: req.params.id})
         .then(sauce => { 
             switch (like) {
-                case 1: 
+                case +1: 
                     Sauce.updateOne(
                         {_id: req.params.id},
-                        {$push: {usersLiked: userId}, $inc: {like: 1}} // ajoute id dans le tableau des usersLiked et incrémente 1 like     
+                        {$push: {usersLiked: userId}, $inc: {like: +1}} // ajoute id dans le tableau des usersLiked et incrémente 1 like     
                     )                 
                     .then(() => res.status(201).json({ message: 'sauce aimée'})) 
                     .catch(error => res.status(400).json({error}));
@@ -74,7 +74,7 @@ exports.likeSauce = (req,res,next) => {
                 case -1:
                     Sauce.updateOne(
                         {_id: req.params.id},
-                        {$push: {usersDisliked: userId}, $inc: {dislike: 1}}
+                        {$push: {usersDisliked: userId}, $inc: {dislike: -1}}
                     )                                             
                     .then(() => res.status(201).json({ message: 'sauce pas aimée'})) //ajoute id dans le tableau des usersDisliked et incrémente 1 dislike                 
                     .catch(error => res.status(400).json({error}));
