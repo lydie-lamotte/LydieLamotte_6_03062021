@@ -59,7 +59,6 @@ exports.likeSauce = (req,res,next) => {
     const sauceObject = req.body;
     const userId = sauceObject.userId;
     const like = sauceObject.like;
-    console.log(like)
     Sauce.findOne({ _id: req.params.id})
         .then(sauce => { 
             switch (like) {
@@ -68,7 +67,7 @@ exports.likeSauce = (req,res,next) => {
                         {_id: req.params.id},
                         {$push: {usersLiked: userId}, $inc: {likes: +1}} // ajoute id dans le tableau des usersLiked et incrémente 1 like     
                     )                 
-                    .then(() => res.status(201).json({ message: 'sauce aimée'})) 
+                    .then(() => res.status(201).json({ message: 'j\'aime'})) 
                     .catch(error => res.status(400).json({error}));
                     break;    
                 case -1:
@@ -76,22 +75,19 @@ exports.likeSauce = (req,res,next) => {
                         {_id: req.params.id},
                         {$push: {usersDisliked: userId}, $inc: {dislikes: +1}}
                     )                                             
-                    .then(() => res.status(201).json({ message: 'sauce pas aimée'})) //ajoute id dans le tableau des usersDisliked et incrémente 1 dislike                 
+                    .then(() => res.status(201).json({ message: 'je n\'aime pas'})) //ajoute id dans le tableau des usersDisliked et incrémente 1 dislike                 
                     .catch(error => res.status(400).json({error}));
                     break; 
                 case 0:
-                    console.log(sauce.usersDisliked.includes(userId))
                     if (sauce.usersLiked.includes(userId)) {
                         Sauce.updateOne(
                             {_id: req.params.id},
                             {$pull: {usersLiked: userId}, $inc: {likes: -1}} //Retire id du tableau et on retire le like ou le dislike
-                        )
-                        
+                        )                        
                         .then(() =>res.status(201).json({ message: 'pas de préférence'}))
                         .catch(error => res.status(400).json({error}));                         
                     }
                     if (sauce.usersDisliked.includes(userId)) {
-                        console.log("je retire cela")
                         Sauce.updateOne(
                             {_id: req.params.id},
                             {$pull: {usersDisliked: userId}, $inc: {dislikes: -1}} //Retire id du tableau et on retire le like ou le dislike
