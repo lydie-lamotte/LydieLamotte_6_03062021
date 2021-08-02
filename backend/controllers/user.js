@@ -11,13 +11,13 @@ exports.signup = (req, res, next) => {
     //valider l'email
     const isEmailValid = email.validate('test@email.com');
     if (!isEmailValid) {
-        res.status(400).json({ error : "email non valide" });
+        res.status(400).json({ message : "email non valide" });
     }
 
     // valider le mot de passe
     const isValid = password.validate(req.body.password);
     if (!isValid) {
-        res.status(400).json({ error : "mot de passe non valide" });
+        res.status(400).json({ message : "mot de passe non valide" });
     }
 
     // crypte le mot de passe
