@@ -9,7 +9,7 @@ const email = require('email-validator'); // importe module email-validator
 // Inscription
 exports.signup = (req, res, next) => {
     //valider l'email
-    const isEmailValid = email.validate('test@email.com');
+    const isEmailValid = email.validate(req.body.email);
     if (!isEmailValid) {
         res.status(400).json({ message : "email non valide" });
     }
